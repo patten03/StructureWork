@@ -10,7 +10,6 @@
 #include <Windows.h>
 
 typedef bool (*fileExtension)(const std::string&);
-bool recieveISS(const std::string& filename);
 
 // функции, измен€ющие название файлов
 std::string space2underscore(std::string text); // замена пробелов в названии файлах на нижние подчеркивани€
@@ -21,9 +20,9 @@ std::string formatXX(int num);                  // преобразование чисел дл€ врем
 std::string findFile(std::string title, fileExtension condition);
 
 // составные части findFile()
-int movingArrow(int ymin, int ymax, int cur, int key);                                            // движение стрелки выбора
-void fileChoice(int begCoord, std::vector<std::string> folders, int& cur, std::string& filepath); // выбор файла
-void makeFilesList(std::string filepath, std::vector<std::string>& folderList, fileExtension condition);                   //создание списка файлов
+int movingArrow(int ymin, int ymax, int cur, int key);                                                   // движение стрелки выбора
+void fileChoice(int begCoord, std::vector<std::string> folders, int& cur, std::string& filepath);        // выбор файла
+void makeFilesList(std::string filepath, std::vector<std::string>& folderList, fileExtension condition); //создание списка файлов
 
 void ask(const std::vector<std::string> choice);    // вывод списка действий в консоль
 int inputChoice(const int& end);                    // реагирование на выбор пользовател€ действий

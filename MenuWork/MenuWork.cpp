@@ -7,10 +7,6 @@ void showDir(const std::vector<std::string>& dir) {
 	}
 }
 
-bool recieveISS(const std::string& filename) {
-	return (filename.rfind(".iss") != std::string::npos);
-}
-
 //@brief выбор файла через консоль пользователем
 //@return возврат выбранного файла в виде строки
 std::string findFile(std::string title, fileExtension condition) {

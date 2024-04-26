@@ -1,8 +1,9 @@
-﻿#include "MenuWork.h"
+﻿#include "StructureWork.h"
+#include "MenuWork.h"
 #include <iostream>
 
 int main() {
 	standartSettings();
-	std::cout << findFile("", recieveISS);
+	menu();
 	return 0;
 }

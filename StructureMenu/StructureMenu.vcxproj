@@ -136,11 +136,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="StructureMenu.cpp" />
+    <ClCompile Include="StructureWork.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MenuWork\MenuWork.vcxproj">
       <Project>{36851837-d762-48ad-b91c-06821d056afc}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="StructureWork.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
