@@ -58,49 +58,6 @@ void appendAddElm(std::string appSession, std::string subjectName) {
 }
 
 void removeAddElm(std::string remSession, std::string subjectName) {
-	{
-		//MainElm* curMainElmPtr = mainPtr;
-		//// поиск требуемой дисциплины
-		//while (curMainElmPtr->subject != subjectName and curMainElmPtr->ptr1 != nullptr)
-		//	curMainElmPtr = curMainElmPtr->ptr1;
-
-		//// если не была найдена требуемая дисциплина
-		//if (curMainElmPtr->subject != subjectName)
-		//	return;
-
-		//// проверка на отсутсвие методов оценивания
-		//if (curMainElmPtr->ptr2 == nullptr)
-		//	return;
-
-		//AddElm* curAddElmPtr = curMainElmPtr->ptr2;
-		//// случай, когда предмет имеет один метод оценивания
-		//if (curAddElmPtr->ptr == nullptr) {
-		//	// случай, когда метод оценивания совпадает с требуемым
-		//	if (curAddElmPtr->session == remSession) {
-		//		delete curAddElmPtr;
-		//		curMainElmPtr->ptr2 = nullptr;
-		//	}
-		//	return;
-		//}
-
-		//// поиск методов оценивания
-		////while (curAddElmPtr->ptr != nullptr)
-		////	if (curAddElmPtr->session != remSession)
-		////		curAddElmPtr = curAddElmPtr->ptr;
-
-		//while (curAddElmPtr->ptr->session != remSession and curAddElmPtr->ptr != nullptr)
-		//	curAddElmPtr = curAddElmPtr->ptr;
-
-		//// случай, когда требуемого метода оценивания нет
-		//if (curAddElmPtr->ptr == nullptr)
-		//	return;
-
-		//// общий случай
-		//AddElm* remPtr = curAddElmPtr->ptr;         // сохранение указателя на удаляемый элемент
-		//curAddElmPtr->ptr = curAddElmPtr->ptr->ptr; // привязка к элементов между удаляемым или передача будущему крайнему элементу nullptr
-		//delete remPtr;                              // удаление требуемого элемента
-
-	}
 	MainElm* curMainElmPtr = mainPtr;
 	// поиск требуемой дисциплины
 	while (curMainElmPtr->subject != subjectName and curMainElmPtr->ptr1 != nullptr)
