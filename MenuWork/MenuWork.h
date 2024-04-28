@@ -9,6 +9,7 @@
 #include <conio.h>
 #include <Windows.h>
 
+// тип услови€, по которому выбираютс€ файл дл€ отображени€ в меню на основе названи€ файла
 typedef bool (*fileExtension)(const std::string&);
 
 // функции, измен€ющие название файлов

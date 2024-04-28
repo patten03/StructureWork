@@ -1,8 +1,52 @@
 #include "StructureWork.h"
 #include "MenuWork.h"
 
+MainElm* mainPtr = nullptr;
+
 bool receiveISS(const std::string& filename) {
 	return (filename.rfind(".iss") != std::string::npos);
+}
+
+void appendMainElm(std::string appSubject) {
+	MainElm* appPtr = new MainElm;
+	appPtr->subject = appSubject;
+	appPtr->ptr1 = nullptr;
+	appPtr->ptr2 = nullptr;
+
+	MainElm* curPtr = mainPtr;
+
+	// случай, когда в структуре нет ни одного элемента
+	if (mainPtr == nullptr) {
+		mainPtr = appPtr;
+		appPtr->ptr1 = nullptr;
+	}
+
+	else {
+		while (curPtr->ptr1 != nullptr) {
+			curPtr = curPtr->ptr1; // перебор элементов
+		}
+		curPtr->ptr1 = appPtr;
+	}
+}
+
+void printStructure() {
+	MainElm* curMainElmPtr;
+	curMainElmPtr = mainPtr;
+	while (curMainElmPtr != nullptr) {
+		std::cout << curMainElmPtr->subject;
+
+		AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+		while (curAddElmPtr != nullptr) {
+			std::cout << '\t' << curAddElmPtr->session;
+			curAddElmPtr = curAddElmPtr->ptr;
+		}
+
+		// предотвращение ввода ввода enter при выводе последнего элемента
+		if (curMainElmPtr->ptr1 != nullptr)
+			std::cout << std::endl;
+
+		curMainElmPtr = curMainElmPtr->ptr1;
+	}
 }
 
 void menu() {

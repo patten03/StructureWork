@@ -4,6 +4,12 @@
 
 int main() {
 	standartSettings();
-	menu();
+	//menu();
+
+	appendMainElm("МатАн");
+	appendMainElm("АнГем");
+	appendMainElm("ЛинАл");
+
+	printStructure();
 	return 0;
 }
