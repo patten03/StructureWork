@@ -29,6 +29,34 @@ void appendMainElm(std::string appSubject) {
 	}
 }
 
+void appendAddElm(std::string appSession, std::string subjectName) {
+	MainElm* curMainElmPtr = mainPtr;
+	// перебор по дисциплинам, поиск требуемой
+	while (curMainElmPtr != nullptr and curMainElmPtr->subject != subjectName) {
+		curMainElmPtr = curMainElmPtr->ptr1;
+	}
+
+	if (curMainElmPtr != nullptr) {
+
+		// создание элемента метода оценивания
+		AddElm* tmp = new AddElm;
+		tmp->ptr = nullptr;
+		tmp->session = appSession;
+
+		// проверка на наличие хоть каких-то методов оценивания в программе
+		if (curMainElmPtr->ptr2 == nullptr) // случай отсутствия методов оценивания
+			curMainElmPtr->ptr2 = tmp;
+		else {                              // случай наличия методов оценивания
+			AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+			// перебор методов оценивания
+			while (curAddElmPtr->ptr != nullptr)
+				curAddElmPtr = curAddElmPtr->ptr;
+			curAddElmPtr->ptr = tmp;
+		}
+	}
+	else {} // TODO придумать какое-нибудь предупреждение или ошибку, когда дисциплина не была найдена
+}
+
 void printStructure() {
 	MainElm* curMainElmPtr;
 	curMainElmPtr = mainPtr;

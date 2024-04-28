@@ -10,6 +10,11 @@ int main() {
 	appendMainElm("АнГем");
 	appendMainElm("ЛинАл");
 
+	appendAddElm("Зачет", "МатАн");
+	appendAddElm("Экзамен", "МатАн");
+	appendAddElm("Зачет", "АнГем");
+	appendAddElm("Зачет", "ЛинАл");
+
 	printStructure();
 	return 0;
 }
