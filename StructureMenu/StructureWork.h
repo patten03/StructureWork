@@ -4,6 +4,7 @@
 #include "MenuWork.h"
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
 // типы методов оценивания
 enum sessionType { test = 1, exam, courseWork, courseProject };
@@ -56,7 +57,7 @@ void editStructure();
 void createFile();
 
 // загрузка структуры из файла
-void loadFile();
+void loadFile(std::string filename);
 
 // полное удаление структуры
 void deleteStructure();

@@ -221,10 +221,11 @@ void menu() {
 		}
 		case 5: // загрузка структуры из файла
 		{
-			//file = findFile("Выберите файл:", receiveISS);
-			//if (file != "") {
-			//	loadFile();
-			//}
+			file = findFile("Выберите файл:", receiveISS);
+			if (file != "") {
+				deleteStructure();
+				loadFile(file);
+			}
 			break;
 		}
 		case 6: // вывод структуры в консоль
@@ -236,6 +237,7 @@ void menu() {
 		case 7: // выход из программы
 		{
 			quit = true;
+			deleteStructure();
 			break;
 		}
 		default:
@@ -342,4 +344,31 @@ void createFile() {
 
 		outstream.close();
 	}
+}
+
+void loadFile(std::string filename) {
+	std::fstream instream;
+	instream.open(filename, std::ios_base::in);
+
+	// проверка на открытие файла
+	if (!instream.is_open()) {
+		std::cout << "Произошла ошибка при открытии файла" << std::endl;
+		return;
+	}
+
+	std::string line;
+	while (!instream.eof()) {
+		std::getline(instream, line);
+		std::string subject;
+		std::string session;
+
+		std::stringstream ss(line);
+		std::getline(ss, subject, '\t');
+
+		appendMainElm(subject);
+		while (getline(ss, session, '\t'))
+			appendAddElm(session, subject);
+	}
+
+	instream.close();
 }
