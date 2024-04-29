@@ -48,13 +48,13 @@ void insertAddElm(std::string subjectName);
 void menu();
 
 // меню записи или дозаписи структуры
-void continueWriting();
+bool continueWriting();
 
 // меню редактирования структуры
 void editStructure();
 
 // сохранение структуры в файл
-void createFile();
+bool createFile();
 
 // загрузка структуры из файла
 void loadFile(std::string filename);

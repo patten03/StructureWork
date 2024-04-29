@@ -182,6 +182,14 @@ void menu() {
 	bool isSaved(false); // переменная указывает на то, была ли сохранена структура в файл
 	bool quit(false);    // переменная выхода из программы
 	while (!quit) {
+
+		if (mainPtr != nullptr) {
+			if (isSaved)
+				std::cout << "Текущая структура сохранена" << std::endl;
+			else
+				std::cout << "Текущая структура не сохранена" << std::endl;
+		}
+
 		std::cout << "Выберите действие:" << std::endl;
 		std::vector<std::string> menuPanel{
 			"Создать новую структуру",
@@ -202,21 +210,23 @@ void menu() {
 		{
 			deleteStructure();
 			continueWriting();
+			isSaved = false;
 			break;
 		}
 		case 2: // дозапись структуры
 		{
-			continueWriting();
+			isSaved = !continueWriting();
 			break;
 		}
 		case 3: // редактирование структуры
 		{
 			//editStructure();
+			isSaved = false;
 			break;
 		}
 		case 4: // сохранение структуры в файл
 		{
-			createFile();
+			isSaved = createFile();
 			break;
 		}
 		case 5: // загрузка структуры из файла
@@ -225,6 +235,7 @@ void menu() {
 			if (file != "") {
 				deleteStructure();
 				loadFile(file);
+				isSaved = true;
 			}
 			break;
 		}
@@ -246,8 +257,10 @@ void menu() {
 	}
 }
 
-void continueWriting() {
+//@return если были введены измения то true, иначе false
+bool continueWriting() {
 	std::string buffMain("");
+	bool wasChanged(false); // флаг, показывает факт того, были ли введены какие-либо изменения в структуру
 	while (buffMain != exitStr) {
 		std::cout << ("Введите название дисциплины, для выхода введите " + exitStr) << std::endl;
 		std::cout << ">>";
@@ -255,10 +268,12 @@ void continueWriting() {
 
 		system("cls");
 		if (buffMain != exitStr) {
+			wasChanged = true;
 			appendMainElm(buffMain);
 			insertAddElm(buffMain);
 		}
 	}
+	return wasChanged;
 }
 
 void insertAddElm(std::string subjectName) {
@@ -304,14 +319,15 @@ void deleteStructure() {
 	}
 }
 
-void createFile() {
+//@return возвращает true, если файл был создан, иначе false
+bool createFile() {
 	MainElm* curMainElmPtr;
 	curMainElmPtr = mainPtr;
 
 	// случай, когда структура пустая
 	if (mainPtr == nullptr) {
 		std::cout << "Нельзя записать в файл пустую структуру" << std::endl;
-		return;
+		return false; // файл не был сохранен, по ошибке
 	}
 
 	std::string filename = askName("Введите название файла, для выхода введите " + exitStr);
@@ -343,7 +359,9 @@ void createFile() {
 		std::cout << "Структура сохранена в файл под названием " << filename << std::endl;
 
 		outstream.close();
+		return true; // файл был сохранен
 	}
+	return false; // файл не был сохранен, по желанию пользователя
 }
 
 void loadFile(std::string filename) {
