@@ -216,19 +216,44 @@ void createFile() {
 		std::cout << ">>";
 		std::getline(std::cin, buffMain);
 
-		if (buffMain != exitStr and buffMain != "") {
-			appendMainElm(buffMain);
-			std::string buffAdd("");
-			while (buffAdd != exitStr) {
-				std::cout << ("Введите название метода оценивания, для выхода введите " + exitStr) << std::endl;
-				std::cout << ">>";
-				std::getline(std::cin, buffAdd);
-				if (buffAdd != exitStr and buffAdd != "")
-					appendAddElm(buffAdd, buffMain);
-			}
-		}
 		system("cls");
+		if (buffMain != exitStr) {
+			appendMainElm(buffMain);
+			insertAddElm(buffMain);
+		}
 	}
 	printStructure();
 	std::cout << std::endl;
+}
+
+void insertAddElm(std::string subjectName) {
+	std::vector<std::string> action{
+	"ЗАЧЕТ",
+	"ЭКЗАМЕН",
+	"КР",
+	"КП",
+	"Выйти к дисциплинам"
+	};
+
+	std::vector<std::string> curList;
+
+	bool exit(false);
+	while (exit != true) {
+		std::cout << ("Выберите методы оценивания для дисциплины " + subjectName) << std::endl;
+		ask(action);
+		std::cout << "Список введенных методов оценивания:" << std::endl;
+		for (auto out : curList)
+			std::cout << '\t' << out << std::endl;
+
+		int ans = inputChoice(action.size());
+
+		if (ans < 5) {
+			appendAddElm(action[ans - 1], subjectName);
+			curList.push_back(action[ans - 1]);
+		}
+		else if (ans == 5) {
+			exit = true;
+		}
+	}
+	system("cls");
 }

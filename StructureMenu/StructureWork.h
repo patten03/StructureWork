@@ -44,6 +44,8 @@ void menu();
 // меню создания файлов
 void createFile();
 
+void insertAddElm(std::string subjectName);
+
 // меню редактирования файлов
 void editFile();
 

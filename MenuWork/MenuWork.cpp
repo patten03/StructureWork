@@ -78,15 +78,6 @@ void fileChoice(int begCoord, std::vector<std::string> files, int& cur, std::str
 	}
 }
 
-//@brief проверка на то, является ли файл отсортированным через название файла
-bool isSorted(const std::string& filename) {
-	bool res(false);
-	// нахождение метки в названии файла
-	if (filename.find("{s}") != -1)
-		res = true;
-	return res;
-}
-
 //@brief создание списка файлов из директории, лежащей в программе
 void makeFilesList(std::string filepath, std::vector<std::string>& folderList, fileExtension condition) {
 	for (auto const& dirFolder : std::filesystem::directory_iterator(filepath + "\\")) {
