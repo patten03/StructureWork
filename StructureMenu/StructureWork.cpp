@@ -141,17 +141,23 @@ void removeAddElm(std::string remSession, std::string subjectName) {
 		delete remPtr;                               // удаление требуемого элемента
 	}
 }
+
 void printStructure() {
+	const int widthHead(20);
+	const int widthCell(10);
+
 	MainElm* curMainElmPtr;
 	curMainElmPtr = mainPtr;
+
+	std::cout << "Вид структуры:" << std::endl;
 	// перебор дисциплин для вывода
 	while (curMainElmPtr != nullptr) {
-		std::cout << curMainElmPtr->subject;
+		std::cout << std::left << std::setw(widthHead) << curMainElmPtr->subject;
 
 		AddElm* curAddElmPtr = curMainElmPtr->ptr2;
 		// перебор методов оценивания для вывода
 		while (curAddElmPtr != nullptr) {
-			std::cout << '\t' << curAddElmPtr->session;
+			std::cout << std::left << std::setw(widthCell) << curAddElmPtr->session;
 			curAddElmPtr = curAddElmPtr->ptr;
 		}
 
@@ -161,6 +167,10 @@ void printStructure() {
 
 		curMainElmPtr = curMainElmPtr->ptr1;
 	}
+	// случай, когда структура пустая
+	if (mainPtr == nullptr) {
+		std::cout << "Структура пуста";
+	}
 }
 
 void menu() {
@@ -168,12 +178,18 @@ void menu() {
 		<< "Программа работает с учебными дисциплинами и их методами оценивания." << std::endl << std::endl
 		<< "Для работы с файлами они должны находится в той же директории, что и программа." << std::endl << std::endl;
 
-	bool quit(false); // переменная выхода из программы
+
+	bool isSaved(false); // переменная указывает на то, была ли сохранена структура в файл
+	bool quit(false);    // переменная выхода из программы
 	while (!quit) {
 		std::cout << "Выберите действие:" << std::endl;
 		std::vector<std::string> menuPanel{
-			"Создать файл",
-			"Редактировать файл",
+			"Создать новую структуру",
+			"Дозаписать структуру",
+			"Редактировать структуру",
+			"Сохранить структуру в файл",
+			"Загрузить структуру из файла",
+			"Вывести структуру в консоль",
 			"Выйти из программы"
 		};
 		ask(menuPanel); // вывод действий в консоль для их выбора пользователем
@@ -182,21 +198,43 @@ void menu() {
 		std::string file;
 		// реакция на выбор действия пользователем
 		switch (choice) {
-		case 1:
-		{ // создание файла
+		case 1: // создание новой структуры
+		{
+			deleteStructure();
+			continueWriting();
+			break;
+		}
+		case 2: // дозапись структуры
+		{
+			continueWriting();
+			break;
+		}
+		case 3: // редактирование структуры
+		{
+			//editStructure();
+			break;
+		}
+		case 4: // сохранение структуры в файл
+		{
 			createFile();
 			break;
 		}
-		case 2:
-		{ // редактирование файла
-			file = findFile("Выберите файл:", receiveISS);
-			if (file != "") {
-				continue;
-			}
+		case 5: // загрузка структуры из файла
+		{
+			//file = findFile("Выберите файл:", receiveISS);
+			//if (file != "") {
+			//	loadFile();
+			//}
 			break;
 		}
-		case 3:
-		{ // выход из программы
+		case 6: // вывод структуры в консоль
+		{
+			printStructure();
+			std::cout << std::endl << std::endl;
+			break;
+		}
+		case 7: // выход из программы
+		{
 			quit = true;
 			break;
 		}
@@ -206,10 +244,7 @@ void menu() {
 	}
 }
 
-void createFile() {
-	std::string filename = askName("Введите название создаваемого файла");
-	filename = filename + currentTime() + ".iss";
-
+void continueWriting() {
 	std::string buffMain("");
 	while (buffMain != exitStr) {
 		std::cout << ("Введите название дисциплины, для выхода введите " + exitStr) << std::endl;
@@ -222,8 +257,6 @@ void createFile() {
 			insertAddElm(buffMain);
 		}
 	}
-	printStructure();
-	std::cout << std::endl;
 }
 
 void insertAddElm(std::string subjectName) {
@@ -256,4 +289,57 @@ void insertAddElm(std::string subjectName) {
 		}
 	}
 	system("cls");
+}
+
+void deleteStructure() {
+	MainElm* curMainElmPtr = mainPtr;
+	MainElm* precMainElmPtr = nullptr;
+
+	while (curMainElmPtr != nullptr) {
+		precMainElmPtr = curMainElmPtr;
+		curMainElmPtr = curMainElmPtr->ptr1;
+		removeMainElm(precMainElmPtr->subject);
+	}
+}
+
+void createFile() {
+	MainElm* curMainElmPtr;
+	curMainElmPtr = mainPtr;
+
+	// случай, когда структура пустая
+	if (mainPtr == nullptr) {
+		std::cout << "Нельзя записать в файл пустую структуру" << std::endl;
+		return;
+	}
+
+	std::string filename = askName("Введите название файла, для выхода введите " + exitStr);
+	// проверка на символ выхода и то, является ли структура пустой
+	if (filename != exitStr) {
+		filename = filename + "_" + currentTime() + ".iss";
+
+		std::fstream outstream;
+		outstream.open(filename, std::ios_base::out);
+
+		// перебор дисциплин для вывода
+		while (curMainElmPtr != nullptr) {
+			outstream << curMainElmPtr->subject;
+
+			AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+			// перебор методов оценивания для вывода
+			while (curAddElmPtr != nullptr) {
+				outstream << '\t' << curAddElmPtr->session;
+				curAddElmPtr = curAddElmPtr->ptr;
+			}
+
+			// предотвращение ввода ввода enter при выводе последнего элемента
+			if (curMainElmPtr->ptr1 != nullptr)
+				outstream << std::endl;
+
+			curMainElmPtr = curMainElmPtr->ptr1;
+		}
+
+		std::cout << "Структура сохранена в файл под названием " << filename << std::endl;
+
+		outstream.close();
+	}
 }

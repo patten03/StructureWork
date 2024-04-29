@@ -19,7 +19,7 @@ int main() {
 
 	//printStructure(); std::cout << std::endl;
 
-	//removeMainElm("AnGeom");
+	//deleteStructure();
 
 	//printStructure();
 

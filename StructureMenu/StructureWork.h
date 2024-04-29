@@ -2,6 +2,8 @@
 #define STRUCTUREWORK
 
 #include "MenuWork.h"
+#include <iomanip>
+#include <fstream>
 
 // типы методов оценивания
 enum sessionType { test = 1, exam, courseWork, courseProject };
@@ -38,16 +40,26 @@ void appendAddElm(std::string session, std::string subjectName);
 // удаление метода оценивания из структуры
 void removeAddElm(std::string remSession, std::string subjectName);
 
+// запись методов оценивания для предмета
+void insertAddElm(std::string subjectName);
+
 // основное меню программы
 void menu();
 
-// меню создания файлов
+// меню записи или дозаписи структуры
+void continueWriting();
+
+// меню редактирования структуры
+void editStructure();
+
+// сохранение структуры в файл
 void createFile();
 
-void insertAddElm(std::string subjectName);
+// загрузка структуры из файла
+void loadFile();
 
-// меню редактирования файлов
-void editFile();
+// полное удаление структуры
+void deleteStructure();
 
 // фильтр для выбора файлов формата .iss
 bool receiveISS(const std::string& filename);
