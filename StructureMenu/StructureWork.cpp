@@ -3,6 +3,8 @@
 
 MainElm* mainPtr = nullptr;
 
+std::string exitStr = "0";
+
 bool receiveISS(const std::string& filename) {
 	return (filename.rfind(".iss") != std::string::npos);
 }
@@ -29,12 +31,52 @@ void appendMainElm(std::string appSubject) {
 	}
 }
 
+void removeMainElm(std::string remSubject) {
+	MainElm* curMainElmPtr = mainPtr;
+	MainElm* precMainElmPtr = nullptr;
+	// перебор по дисциплинам, поиск требуемой
+	while (curMainElmPtr != nullptr and curMainElmPtr->subject != remSubject) {
+		precMainElmPtr = curMainElmPtr;
+		curMainElmPtr = curMainElmPtr->ptr1;
+	}
+
+	// случай, когда дисциплина не найдена
+	if (curMainElmPtr->subject != remSubject)
+		return;
+
+	// удаление всех методов оценивани€
+	AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+	AddElm* succAddElmPtr = nullptr;
+	while (curAddElmPtr != nullptr) {
+		succAddElmPtr = curAddElmPtr->ptr;
+		delete curAddElmPtr;
+		curAddElmPtr = succAddElmPtr;
+	}
+	curMainElmPtr->ptr2 = nullptr;
+
+	// удаление дисциплины
+
+	// случай, когда дисциплина идет сразу после указател€ на структуру
+	if (mainPtr == curMainElmPtr) {
+		MainElm* remPtr = curMainElmPtr;
+		mainPtr = curMainElmPtr->ptr1;
+		delete remPtr;
+
+		return;
+	}
+
+	// общий случай
+
+	MainElm* remPtr = curMainElmPtr;
+	precMainElmPtr->ptr1 = curMainElmPtr->ptr1;
+	delete remPtr;
+}
+
 void appendAddElm(std::string appSession, std::string subjectName) {
 	MainElm* curMainElmPtr = mainPtr;
 	// перебор по дисциплинам, поиск требуемой
-	while (curMainElmPtr != nullptr and curMainElmPtr->subject != subjectName) {
+	while (curMainElmPtr != nullptr and curMainElmPtr->subject != subjectName)
 		curMainElmPtr = curMainElmPtr->ptr1;
-	}
 
 	if (curMainElmPtr != nullptr) {
 
@@ -142,7 +184,7 @@ void menu() {
 		switch (choice) {
 		case 1:
 		{ // создание файла
-
+			createFile();
 			break;
 		}
 		case 2:
@@ -154,7 +196,7 @@ void menu() {
 			break;
 		}
 		case 3:
-		{
+		{ // выход из программы
 			quit = true;
 			break;
 		}
@@ -162,4 +204,31 @@ void menu() {
 			break;
 		}
 	}
+}
+
+void createFile() {
+	std::string filename = askName("¬ведите название создаваемого файла");
+	filename = filename + currentTime() + ".iss";
+
+	std::string buffMain("");
+	while (buffMain != exitStr) {
+		std::cout << ("¬ведите название дисциплины, дл€ выхода введите " + exitStr) << std::endl;
+		std::cout << ">>";
+		std::getline(std::cin, buffMain);
+
+		if (buffMain != exitStr and buffMain != "") {
+			appendMainElm(buffMain);
+			std::string buffAdd("");
+			while (buffAdd != exitStr) {
+				std::cout << ("¬ведите название метода оценивани€, дл€ выхода введите " + exitStr) << std::endl;
+				std::cout << ">>";
+				std::getline(std::cin, buffAdd);
+				if (buffAdd != exitStr and buffAdd != "")
+					appendAddElm(buffAdd, buffMain);
+			}
+		}
+		system("cls");
+	}
+	printStructure();
+	std::cout << std::endl;
 }
