@@ -155,10 +155,7 @@ void printStructure() {
 			std::cout << std::left << std::setw(widthCell) << curAddElmPtr->session;
 			curAddElmPtr = curAddElmPtr->ptr;
 		}
-
-		// предотвращение ввода ввода enter при выводе последнего элемента
-		if (curMainElmPtr->ptr1 != nullptr)
-			std::cout << std::endl;
+		std::cout << std::endl;
 
 		curMainElmPtr = curMainElmPtr->ptr1;
 	}
@@ -224,7 +221,7 @@ void menu() {
 		}
 		case 4: // сохранение структуры в файл
 		{
-			isSaved = createFile();
+			isSaved += createFile();
 			break;
 		}
 		case 5: // загрузка структуры из файла
@@ -240,7 +237,7 @@ void menu() {
 		case 6: // вывод структуры в консоль
 		{
 			printStructure();
-			std::cout << std::endl << std::endl;
+			std::cout << std::endl;
 			break;
 		}
 		case 7: // выход из программы
@@ -405,13 +402,11 @@ bool editStructure() {
 
 		while (!quit) {
 			printStructure();
-			std::cout << std::endl;
 			std::cout << "Выберите действие:" << std::endl;
 			ask(action);
 			int ans = inputChoice(action.size());
 
 			printStructure();
-			std::cout << std::endl;
 			switch (ans) {
 			case 1: // добавление метода оценивания
 			{
@@ -512,7 +507,6 @@ bool edit_removeSession() {
 			while (exit != true) {
 				system("cls");
 				printStructure();
-				std::cout << std::endl;
 				std::cout << ("Выберите метод оценивания, который хотите удалить у дисциплины " + buffMainElm) << std::endl;
 				ask(action);
 
