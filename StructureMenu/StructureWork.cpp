@@ -1,8 +1,10 @@
 #include "StructureWork.h"
 #include "MenuWork.h"
 
+//@brief начальный указатель на всю структуру
 MainElm* mainPtr = nullptr;
 
+//@brief массив методов оценивания
 const std::vector<std::string> sessionKind{
 	"ЗАЧЕТ",
 	"ЭКЗАМЕН",
@@ -10,13 +12,19 @@ const std::vector<std::string> sessionKind{
 	"КП",
 };
 
+//@brief символ выхода из меню ввода
 const std::string exitStr = "0";
 
+//@brief фильтр для выбора файлов формата .iss
 bool receiveISS(const std::string& filename) {
 	return (filename.rfind(".iss") != std::string::npos);
 }
 
+//@brief добавление дисциплины в структуру
+//@return возвращает указатель на дисциплину, которая была создана
+//@param appSubject - название добаваляемой дисциплины
 MainElm* appendMainElm(std::string appSubject) {
+	// инициализация новой дисциплины
 	MainElm* appPtr = new MainElm;
 	appPtr->subject = appSubject;
 	appPtr->ptr1 = nullptr;
@@ -29,7 +37,7 @@ MainElm* appendMainElm(std::string appSubject) {
 		mainPtr = appPtr;
 		appPtr->ptr1 = nullptr;
 	}
-
+	// общий случай
 	else {
 		while (curPtr->ptr1 != nullptr) {
 			curPtr = curPtr->ptr1; // перебор элементов
@@ -39,9 +47,12 @@ MainElm* appendMainElm(std::string appSubject) {
 	return appPtr;
 }
 
+//@brief удаление дисциплины из структуру
+//@param remSubject - название удалемой дисциплины
 void removeMainElm(std::string remSubject) {
 	MainElm* curMainElmPtr = mainPtr;
 	MainElm* precMainElmPtr = nullptr;
+
 	// перебор по дисциплинам, поиск требуемой
 	while (curMainElmPtr != nullptr and curMainElmPtr->subject != remSubject) {
 		precMainElmPtr = curMainElmPtr;
@@ -74,13 +85,16 @@ void removeMainElm(std::string remSubject) {
 	}
 
 	// общий случай
-
 	MainElm* remPtr = curMainElmPtr;
 	precMainElmPtr->ptr1 = curMainElmPtr->ptr1;
 	delete remPtr;
 }
 
+//@brief добавление метода оценивания в структуру
+//@param appSession - название добавляемого метода оценивания
+//@param subjectPtr - указатель на дисциплину, к которой добавляется метод оценивания
 void appendAddElm(std::string appSession, MainElm* subjectPtr) {
+	// проверка на существование объекта
 	if (subjectPtr != nullptr) {
 
 		// создание элемента метода оценивания
@@ -89,7 +103,7 @@ void appendAddElm(std::string appSession, MainElm* subjectPtr) {
 		tmp->session = appSession;
 
 		// проверка на наличие хоть каких-то методов оценивания в программе
-		if (subjectPtr->ptr2 == nullptr) // случай отсутствия методов оценивания
+		if (subjectPtr->ptr2 == nullptr)    // случай отсутствия методов оценивания
 			subjectPtr->ptr2 = tmp;
 		else {                              // случай наличия методов оценивания
 			AddElm* curAddElmPtr = subjectPtr->ptr2;
@@ -99,9 +113,11 @@ void appendAddElm(std::string appSession, MainElm* subjectPtr) {
 			curAddElmPtr->ptr = tmp;
 		}
 	}
-	else {} // TODO придумать какое-нибудь предупреждение или ошибку, когда дисциплина не была найдена
 }
 
+//@brief удаление метода оценивания из структуру
+//@param remSession - название удаляемого метода оценивания
+//@param subjectPtr - указатель на дисциплину, из которой удаляется метод оценивания
 void removeAddElm(std::string remSession, MainElm* subjectPtr) {
 	// проверка на отсутсвие методов оценивания
 	if (subjectPtr->ptr2 == nullptr)
@@ -137,6 +153,7 @@ void removeAddElm(std::string remSession, MainElm* subjectPtr) {
 	}
 }
 
+//@brief вывод структуры в консоль
 void printStructure() {
 	const int widthHead(20);
 	const int widthCell(10);
@@ -165,6 +182,7 @@ void printStructure() {
 	}
 }
 
+//@brief основная функция меню
 void menu() {
 	// вывод вступления
 	std::cout << "Добро пожаловать в программу StructureWork." << std::endl
@@ -176,6 +194,7 @@ void menu() {
 	bool quit(false);    // переменная выхода из программы
 	while (!quit) {
 
+		// вывод того, была ли сохранена структура
 		if (mainPtr != nullptr) {
 			if (isSaved)
 				std::cout << "Текущая структура сохранена" << std::endl;
@@ -252,10 +271,13 @@ void menu() {
 	}
 }
 
+//@brief меню записи или дозаписи структуры
 //@return если были введены измения то true, иначе false
 bool continueWriting() {
 	std::string buffMain("");
 	bool wasChanged(false); // флаг, показывает факт того, были ли введены какие-либо изменения в структуру
+
+	// цикл работает до тех пор, пока пользователь не введет символ выхода
 	while (buffMain != exitStr) {
 		std::cout << ("Введите название дисциплины, для выхода введите " + exitStr) << std::endl;
 		std::cout << ">>";
@@ -271,25 +293,30 @@ bool continueWriting() {
 	return wasChanged;
 }
 
+//@brief запись нескольких методов оценивания для предмета
 //@return возвращает true, если структура была изменена, иначе false
+//@param subjectPtr - указатель на дисциплину, к которой добавляются методы оценивания
 bool insertAddElm(MainElm* subjectPtr) {
 	bool res(false);
 
 	std::vector<std::string> action = sessionKind;
 	action.push_back("Выйти из выбора");
 
-	std::vector<std::string> curList;
+	std::vector<std::string> curList; // список выбранных методов оценивания
 
 	bool exit(false);
+	// цикл работает до тех пор, пока не пользователь не захочет выйти
 	while (exit != true) {
 		std::cout << ("Выберите методы оценивания для дисциплины " + subjectPtr->subject) << std::endl;
 		ask(action);
 		std::cout << "Список введенных методов оценивания:" << std::endl;
+		// вывод выбранных методов оценивания
 		for (auto out : curList)
 			std::cout << "  " << out << std::endl;
 
 		int ans = inputChoice(action.size());
 
+		// ввод выбранного метода оценивания
 		if (ans < 5) {
 			res = true;
 			appendAddElm(action[ans - 1], subjectPtr);
@@ -303,17 +330,19 @@ bool insertAddElm(MainElm* subjectPtr) {
 	return res;
 }
 
+//@brief полное удаление структуры
 void deleteStructure() {
 	MainElm* curMainElmPtr = mainPtr;
 	MainElm* precMainElmPtr = nullptr;
 
 	while (curMainElmPtr != nullptr) {
-		precMainElmPtr = curMainElmPtr;
+		precMainElmPtr = curMainElmPtr;         // сохранение предыдущего элемента, чтобы не терять указатель
 		curMainElmPtr = curMainElmPtr->ptr1;
-		removeMainElm(precMainElmPtr->subject);
+		removeMainElm(precMainElmPtr->subject); // удаление предыдущего элемента
 	}
 }
 
+//@brief сохранение структуры в файл
 //@return возвращает true, если файл был создан, иначе false
 bool createFile() {
 	MainElm* curMainElmPtr;
@@ -333,18 +362,18 @@ bool createFile() {
 		std::fstream outstream;
 		outstream.open(filename, std::ios_base::out);
 
-		// перебор дисциплин для вывода
+		// перебор дисциплин для ввода
 		while (curMainElmPtr != nullptr) {
 			outstream << curMainElmPtr->subject;
 
 			AddElm* curAddElmPtr = curMainElmPtr->ptr2;
-			// перебор методов оценивания для вывода
+			// перебор методов оценивания для ввода
 			while (curAddElmPtr != nullptr) {
 				outstream << '\t' << curAddElmPtr->session;
 				curAddElmPtr = curAddElmPtr->ptr;
 			}
 
-			// предотвращение ввода ввода enter при выводе последнего элемента
+			// предотвращение ввода enter при выводе последнего элемента
 			if (curMainElmPtr->ptr1 != nullptr)
 				outstream << std::endl;
 
@@ -359,6 +388,8 @@ bool createFile() {
 	return false; // файл не был сохранен, по желанию пользователя
 }
 
+//@brief загрузка структуры из файла
+//@param filename - название файла, из которого требуется загрузить структуру
 void loadFile(std::string filename) {
 	std::fstream instream;
 	instream.open(filename, std::ios_base::in);
@@ -370,6 +401,7 @@ void loadFile(std::string filename) {
 	}
 
 	std::string line;
+	// цикл получения дисциплин с их методами оценивания
 	while (!instream.eof()) {
 		std::getline(instream, line);
 		std::string subject;
@@ -379,6 +411,7 @@ void loadFile(std::string filename) {
 		std::getline(ss, subject, '\t');
 
 		MainElm* curMainElmPtr = appendMainElm(subject);
+		// разделение полученной строки на методы оценивания
 		while (getline(ss, session, '\t'))
 			appendAddElm(session, curMainElmPtr);
 	}
@@ -386,6 +419,7 @@ void loadFile(std::string filename) {
 	instream.close();
 }
 
+//@brief меню редактирования структуры
 //@return возвращает true, если структура была изменена, иначе false
 bool editStructure() {
 	bool res(false);
@@ -437,6 +471,7 @@ bool editStructure() {
 	return res;
 }
 
+//@brief меню добавления метода оценивания в дисциплину
 //@return возвращает true, если структура была изменена, иначе false
 bool edit_appendSession() {
 	bool res(false);
@@ -444,11 +479,13 @@ bool edit_appendSession() {
 	std::cout << ("Введите название дисциплины, к которой хотите добавить методы оценивания, для выхода введите " + exitStr) << std::endl;
 	std::string buff("");
 
+	// цикл работает до ввода символа остановки
 	while (buff != exitStr) {
 		std::cout << ">>";
 		std::getline(std::cin, buff);
 
 		MainElm* curMainElmPtr = subjectFound(buff);
+		// ввод методов оценивания при нахождении дисциплины
 		if (curMainElmPtr != nullptr and buff != exitStr) {
 			system("cls");
 			res += insertAddElm(curMainElmPtr);
@@ -462,6 +499,7 @@ bool edit_appendSession() {
 	return res;
 }
 
+//@brief меню удаления дисциплины из структуры
 //@return возвращает true, если структура была изменена, иначе false
 bool edit_removeSubject() {
 	bool res(false);
@@ -469,16 +507,19 @@ bool edit_removeSubject() {
 	std::cout << ("Введите название дисциплины, которую хотите удалить, для выхода введите " + exitStr) << std::endl;
 	std::string buff("");
 
+	// цикл работает до ввода символа остановки или удаления дисциплины
 	while (buff != exitStr) {
 		std::cout << ">>";
 		std::getline(std::cin, buff);
 
+		// удаление дисциплины
 		if (subjectFound(buff) and buff != exitStr) {
 			res = true;
 			removeMainElm(buff);
 			system("cls");
 			buff = exitStr;
 		}
+		// отчистка консоли после удаления элемента или отмены удаления
 		else if (buff == exitStr)
 			system("cls");
 		else
@@ -487,6 +528,7 @@ bool edit_removeSubject() {
 	return res;
 }
 
+//@brief меню удаления метода оценивания из дисциплины
 //@return возвращает true, если структура была изменена, иначе false
 bool edit_removeSession() {
 	bool res(false);
@@ -494,6 +536,7 @@ bool edit_removeSession() {
 	std::cout << ("Введите название дисциплины, из которой хотите удалить метод оценивания, для выхода введите " + exitStr) << std::endl;
 	std::string buffMainElm("");
 
+	// цикл выбора дисциплины
 	while (buffMainElm != exitStr) {
 		std::cout << ">>";
 		std::getline(std::cin, buffMainElm);
@@ -504,6 +547,7 @@ bool edit_removeSession() {
 			action.push_back("Выйти из выбора");
 
 			bool exit(false);
+			// цикл выбора методов оценивания
 			while (exit != true) {
 				system("cls");
 				printStructure();
@@ -512,6 +556,7 @@ bool edit_removeSession() {
 
 				int ans = inputChoice(action.size());
 
+				// удаление метода оценивания
 				if (ans < 5) {
 					res = true;
 					removeAddElm(action[ans - 1], curMainElmPtr);
@@ -531,6 +576,9 @@ bool edit_removeSession() {
 	return res;
 }
 
+//@brief нахождение дисциплины в структуре по ее названию
+//@return возвращает указатель на найденную дисциплину, если не найден, то nullptr
+//@param name - название дисциплины, которую требуется найти
 MainElm* subjectFound(std::string name) {
 	MainElm* curMainElmPtr = mainPtr;
 	while (curMainElmPtr->subject != name and curMainElmPtr->ptr1 != nullptr)

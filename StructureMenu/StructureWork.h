@@ -6,73 +6,52 @@
 #include <fstream>
 #include <sstream>
 
-// типы методов оценивания
-enum sessionType { test = 1, exam, courseWork, courseProject };
-
-// массив методов оценивания
-const extern std::vector<std::string> sessionKind;
-
-// символ выхода
-const extern std::string exitStr;
-
 // структура методов оценивания
 struct AddElm {
 	std::string session;
-	AddElm* ptr;
+	AddElm* ptr; // указатель на следующий метод оценивания
 };
 
 // структура дисциплин
 struct MainElm {
 	std::string subject;
-	MainElm* ptr1; // ptrDown, указатель на учебную дисциплину
-	AddElm* ptr2;  // ptrLeft, указатель на метод оценивания
+	MainElm* ptr1; // указатель на учебную дисциплину
+	AddElm* ptr2;  // указатель на метод оценивания
 };
 
-// начальный указатель на всю структуру
-extern MainElm* mainPtr;
+// глобальные переменные
 
-// вывод структуры в консоль
-void printStructure();
+extern MainElm* mainPtr;                           // начальный указатель на всю структуру
+const extern std::vector<std::string> sessionKind; // массив методов оценивания
+const extern std::string exitStr;                  // символ выхода из меню ввода
 
-// добавление дисциплин в структуру
-MainElm* appendMainElm(std::string appSubject);
-// удаление дисциплины из структуры
-void removeMainElm(std::string remSubject);
+// функции для прямой работы со структурой
 
-// добавление метода оценивания в структуру
-void appendAddElm(std::string appSession, std::string subjectName);
-// удаление метода оценивания из структуры
-void removeAddElm(std::string remSession, MainElm* subjectPtr);
+void deleteStructure();                         // полное удаление структуры
+MainElm* subjectFound(std::string name);        // получения указателя на дисциплину по ее названию
+void printStructure();                          // вывод структуры в консоль
+MainElm* appendMainElm(std::string appSubject); // добавление дисциплины в структуру
+void removeMainElm(std::string remSubject);     // удаление дисциплины из структуры
+void appendAddElm(std::string appSession, std::string subjectName); // добавление метода оценивания в структуру
+void removeAddElm(std::string remSession, MainElm* subjectPtr);     // удаление метода оценивания из структуры
 
-// запись методов оценивания для предмета
-bool insertAddElm(MainElm* subjectPtr);
+// функии для работы с пользователем, меню
 
-// основное меню программы
-void menu();
-
-// меню записи или дозаписи структуры
-bool continueWriting();
+void menu();                            // основное меню программы
+bool continueWriting();                 // меню записи или дозаписи структуры
+bool insertAddElm(MainElm* subjectPtr); // запись нескольких методов оценивания для предмета
+bool createFile();                      // сохранение структуры в файл
+void loadFile(std::string filename);    // загрузка структуры из файла
+bool editStructure();                   // меню редактирования структуры
 
 // меню редактирования структуры
-bool editStructure();
 
-bool edit_appendSession();
-bool edit_removeSubject();
-bool edit_removeSession();
+bool edit_appendSession(); // добавление метода оценивания
+bool edit_removeSubject(); // удаление дисциплины
+bool edit_removeSession(); // удаление метода оценивания
 
-//bool subjectFound(std::string name);
-MainElm* subjectFound(std::string name);
+// допольнительный функции
 
-// сохранение структуры в файл
-bool createFile();
-
-// загрузка структуры из файла
-void loadFile(std::string filename);
-
-// полное удаление структуры
-void deleteStructure();
-
-// фильтр для выбора файлов формата .iss
-bool receiveISS(const std::string& filename);
+bool receiveISS(const std::string& filename); // фильтр для выбора файлов формата .iss
 
 #endif // STRUCTUREWORK

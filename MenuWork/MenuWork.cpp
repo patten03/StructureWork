@@ -18,7 +18,7 @@ std::string findFile(std::string title, fileExtension condition) {
 		try {
 			std::vector<std::string> fileList;
 			makeFilesList(curFilepath, fileList, condition);
-			if (fileList.size() == 0)
+			if (fileList.size() == 0) // выброс исключени€ из-за отсутсви€ файлов
 				throw std::invalid_argument("ƒиректори€ пуста, ни одного файла не найдено");
 			std::cout << title << std::endl;
 
@@ -47,27 +47,28 @@ std::string findFile(std::string title, fileExtension condition) {
 	return curFilepath;
 }
 
-//@brife реализаци€ меню выбора дл€ findFile()
+//@brief реализаци€ меню выбора дл€ findFile()
 void fileChoice(int begCoord, std::vector<std::string> files, int& cur, std::string& filepath) {
 	movingArrow(begCoord, begCoord + files.size(), cur, 0); // показ стрелки выбора папки  
 
 	bool chosenMenu(false);
+	// цикл выбора файла
 	while (!chosenMenu) {
 		switch (int c = _getch()) {
-		case 224:
-		{ // код нажати€ на стрелки на клавиатуре 
+		case 224: // код нажати€ на стрелки на клавиатуре 
+		{
 			cur = movingArrow(begCoord, begCoord + files.size() - 1, cur, _getch());
 			break;
 		}
-		case 27:
-		{ // выход без выбора файла 
+		case 27: // выход без выбора файла 
+		{
 			chosenMenu = true;
 			cur = begCoord;
 			filepath = "";
 			break;
 		}
-		case 13:
-		{ // выбор папки 
+		case 13: // выбор папки 
+		{
 			filepath = filepath + "\\" + files[cur - begCoord];
 			chosenMenu = true;
 			cur = begCoord;
@@ -81,7 +82,7 @@ void fileChoice(int begCoord, std::vector<std::string> files, int& cur, std::str
 //@brief создание списка файлов из директории, лежащей в программе
 void makeFilesList(std::string filepath, std::vector<std::string>& folderList, fileExtension condition) {
 	for (auto const& dirFolder : std::filesystem::directory_iterator(filepath + "\\")) {
-		{ // цикл сохран€ет файлы html без меток {s}
+		{ // цикл сохран€ет файлы, выполн€ющие условие condition
 			if (dirFolder.is_regular_file()
 				and condition(dirFolder.path().string())) {
 
@@ -94,7 +95,7 @@ void makeFilesList(std::string filepath, std::vector<std::string>& folderList, f
 	}
 }
 
-//@brife передвижение стрелки дл€ выбора файлом пользователем
+//@brief передвижение стрелки дл€ выбора файлом пользователем
 int movingArrow(int ymin, int ymax, int cur, int key) {
 	DWORD dw;
 	COORD here{ 0, cur }; // координата стрелки в консоли (y - идет сверху вниз)
