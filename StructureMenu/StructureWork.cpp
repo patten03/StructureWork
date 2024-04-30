@@ -228,8 +228,10 @@ void menu() {
 		}
 		case 3: // редактирование структуры
 		{
-			editStructure();
-			isSaved = false;
+			if (mainPtr != nullptr)
+				isSaved = !editStructure();
+			else
+				std::cout << "Невозможно редактировать пустую структуру" << std::endl;
 			break;
 		}
 		case 4: // сохранение структуры в файл
@@ -284,7 +286,10 @@ bool continueWriting() {
 	return wasChanged;
 }
 
-void insertAddElm(std::string subjectName) {
+//@return возвращает true, если структура была изменена, иначе false
+bool insertAddElm(std::string subjectName) {
+	bool res(false);
+
 	std::vector<std::string> action = sessionKind;
 	action.push_back("Выйти из выбора");
 
@@ -301,6 +306,7 @@ void insertAddElm(std::string subjectName) {
 		int ans = inputChoice(action.size());
 
 		if (ans < 5) {
+			res = true;
 			appendAddElm(action[ans - 1], subjectName);
 			curList.push_back(action[ans - 1]);
 		}
@@ -309,6 +315,7 @@ void insertAddElm(std::string subjectName) {
 		}
 	}
 	system("cls");
+	return res;
 }
 
 void deleteStructure() {
@@ -394,54 +401,63 @@ void loadFile(std::string filename) {
 	instream.close();
 }
 
-void editStructure() {
-	std::vector<std::string> action{
-		"Добавить метод оценивания",
-		"Удалить дисциплину",
-		"Удалить метод оценивания",
-		"Выйти в главное меню"
-	};
+//@return возвращает true, если структура была изменена, иначе false
+bool editStructure() {
+	bool res(false);
 
-	bool quit(false);
+	if (mainPtr != nullptr) {
+		std::vector<std::string> action{
+	"Добавить метод оценивания",
+	"Удалить дисциплину",
+	"Удалить метод оценивания",
+	"Выйти в главное меню"
+		};
 
-	while (!quit) {
-		printStructure();
-		std::cout << std::endl;
-		std::cout << "Выберите действие:" << std::endl;
-		ask(action);
-		int ans = inputChoice(action.size());
+		bool quit(false);
 
-		printStructure();
-		std::cout << std::endl;
-		switch (ans) {
-		case 1: // добавление метода оценивания
-		{
-			edit_appendSession();
-			break;
-		}
-		case 2: // удаление дисциплины
-		{
-			edit_removeSubject();
-			break;
-		}
-		case 3: // удаление метода оценивания
-		{
-			edit_removeSession();
-			break;
-		}
-		case 4: // выход в меню
-		{
-			quit = true;
-			system("cls");
-			break;
-		}
-		default:
-			break;
+		while (!quit) {
+			printStructure();
+			std::cout << std::endl;
+			std::cout << "Выберите действие:" << std::endl;
+			ask(action);
+			int ans = inputChoice(action.size());
+
+			printStructure();
+			std::cout << std::endl;
+			switch (ans) {
+			case 1: // добавление метода оценивания
+			{
+				res = edit_appendSession();
+				break;
+			}
+			case 2: // удаление дисциплины
+			{
+				res = edit_removeSubject();
+				break;
+			}
+			case 3: // удаление метода оценивания
+			{
+				res = edit_removeSession();
+				break;
+			}
+			case 4: // выход в меню
+			{
+				quit = true;
+				system("cls");
+				break;
+			}
+			default:
+				break;
+			}
 		}
 	}
+	return res;
 }
 
-void edit_appendSession() {
+//@return возвращает true, если структура была изменена, иначе false
+bool edit_appendSession() {
+	bool res(false);
+
 	std::cout << ("Введите название дисциплины, к которой хотите добавить методы оценивания, для выхода введите " + exitStr) << std::endl;
 	std::string buff("");
 
@@ -451,7 +467,7 @@ void edit_appendSession() {
 
 		if (subjectFound(buff) and buff != exitStr) {
 			system("cls");
-			insertAddElm(buff);
+			res += insertAddElm(buff);
 			buff = exitStr;
 		}
 		else if (buff == exitStr)
@@ -459,9 +475,13 @@ void edit_appendSession() {
 		else
 			std::cout << "Дисциплина не найдена" << std::endl;
 	}
+	return res;
 }
 
-void edit_removeSubject() {
+//@return возвращает true, если структура была изменена, иначе false
+bool edit_removeSubject() {
+	bool res(false);
+
 	std::cout << ("Введите название дисциплины, которую хотите удалить, для выхода введите " + exitStr) << std::endl;
 	std::string buff("");
 
@@ -470,6 +490,7 @@ void edit_removeSubject() {
 		std::getline(std::cin, buff);
 
 		if (subjectFound(buff) and buff != exitStr) {
+			res = true;
 			removeMainElm(buff);
 			system("cls");
 			buff = exitStr;
@@ -479,9 +500,13 @@ void edit_removeSubject() {
 		else
 			std::cout << "Дисциплина не найдена" << std::endl;
 	}
+	return res;
 }
 
-void edit_removeSession() {
+//@return возвращает true, если структура была изменена, иначе false
+bool edit_removeSession() {
+	bool res(false);
+
 	std::cout << ("Введите название дисциплины, из которой хотите удалить метод оценивания, для выхода введите " + exitStr) << std::endl;
 	std::string buffMainElm("");
 
@@ -504,6 +529,7 @@ void edit_removeSession() {
 				int ans = inputChoice(action.size());
 
 				if (ans < 5) {
+					res = true;
 					removeAddElm(action[ans - 1], buffMainElm);
 				}
 				else if (ans == 5) {
@@ -518,6 +544,7 @@ void edit_removeSession() {
 		else
 			std::cout << "Дисциплина не найдена" << std::endl;
 	}
+	return res;
 }
 
 bool subjectFound(std::string name) {

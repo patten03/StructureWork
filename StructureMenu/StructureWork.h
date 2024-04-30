@@ -45,7 +45,7 @@ void appendAddElm(std::string session, std::string subjectName);
 void removeAddElm(std::string remSession, std::string subjectName);
 
 // запись методов оценивания для предмета
-void insertAddElm(std::string subjectName);
+bool insertAddElm(std::string subjectName);
 
 // основное меню программы
 void menu();
@@ -54,11 +54,11 @@ void menu();
 bool continueWriting();
 
 // меню редактирования структуры
-void editStructure();
+bool editStructure();
 
-void edit_appendSession();
-void edit_removeSubject();
-void edit_removeSession();
+bool edit_appendSession();
+bool edit_removeSubject();
+bool edit_removeSession();
 
 bool subjectFound(std::string name);
 bool sessionFound(std::string sessionName, std::string subjectName);
