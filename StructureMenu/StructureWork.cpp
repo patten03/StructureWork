@@ -279,16 +279,23 @@ bool continueWriting() {
 
 	// цикл работает до тех пор, пока пользователь не введет символ выхода
 	while (buffMain != exitStr) {
-		std::cout << ("¬ведите название дисциплины, дл€ выхода введите " + exitStr) << std::endl;
-		std::cout << ">>";
-		std::getline(std::cin, buffMain);
+		try {
+			std::cout << ("¬ведите название дисциплины, дл€ выхода введите " + exitStr) << std::endl;
+			std::cout << ">>";
+			std::getline(std::cin, buffMain);
 
-		system("cls");
-		if (buffMain != exitStr) {
-			wasChanged = true;
-			MainElm* curMainElm = appendMainElm(buffMain);
-			insertAddElm(curMainElm);
+			system("cls");
+			if (buffMain != exitStr) {
+				isAdequate(buffMain);
+				wasChanged = true;
+				MainElm* curMainElm = appendMainElm(buffMain);
+				insertAddElm(curMainElm);
+			}
 		}
+		catch (const std::exception& ex) {
+			std::cout << ex.what() << std::endl;
+		}
+
 	}
 	return wasChanged;
 }
@@ -587,4 +594,21 @@ MainElm* subjectFound(std::string name) {
 		return curMainElmPtr;
 	else
 		return nullptr;
+}
+
+//@brief проверка на адекватность введенного названи€ дисциплины
+//@param str - строка, котора€ провер€етс€ на наличие хоть одной буквы алфавита
+void isAdequate(const std::string str) {
+	bool res(false);
+	if (str != exitStr) //символ выхода
+	{
+		std::string necessarySymbols("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		necessarySymbols = necessarySymbols + "абвгдеЄжзийклмнопрстуфхцчшщъыьэю€јЅ¬√ƒ≈®∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёя";
+		for (int i(0); i < necessarySymbols.size(); i++) {
+			if (str.find(necessarySymbols[i]) != -1)
+				res = true; //если хоть один символ из алфавита найден;
+		}
+		if (!res) //если ни один из символов алфавита не найден
+			throw std::invalid_argument("ѕоле должно содержать хот€ бы одну букву алфавита");
+	}
 }
