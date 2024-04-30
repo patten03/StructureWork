@@ -50,7 +50,7 @@ bool edit_appendSession(); // добавление метода оценивания
 bool edit_removeSubject(); // удаление дисциплины
 bool edit_removeSession(); // удаление метода оценивания
 
-// допольнительный функции
+// дополнительный функции
 
 bool receiveISS(const std::string& filename); // фильтр для выбора файлов формата .iss
 void isAdequate(const std::string str);       // проверка на адекватность введенного названия дисциплины
