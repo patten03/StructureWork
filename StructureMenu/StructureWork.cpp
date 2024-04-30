@@ -432,6 +432,7 @@ void editStructure() {
 		case 4: // выход в меню
 		{
 			quit = true;
+			system("cls");
 			break;
 		}
 		default:
@@ -444,31 +445,39 @@ void edit_appendSession() {
 	std::cout << ("Введите название дисциплины, к которой хотите добавить методы оценивания, для выхода введите " + exitStr) << std::endl;
 	std::string buff("");
 
-	std::cout << ">>";
-	std::getline(std::cin, buff);
-	system("cls");
+	while (buff != exitStr) {
+		std::cout << ">>";
+		std::getline(std::cin, buff);
 
-	if (subjectFound(buff) and buff != exitStr) {
-		insertAddElm(buff);
+		if (subjectFound(buff) and buff != exitStr) {
+			system("cls");
+			insertAddElm(buff);
+			buff = exitStr;
+		}
+		else if (buff == exitStr)
+			system("cls");
+		else
+			std::cout << "Дисциплина не найдена" << std::endl;
 	}
-	else
-		std::cout << "Дисциплина не найдена" << std::endl;
 }
 
 void edit_removeSubject() {
 	std::cout << ("Введите название дисциплины, которую хотите удалить, для выхода введите " + exitStr) << std::endl;
 	std::string buff("");
 
-	std::cout << ">>";
-	std::getline(std::cin, buff);
+	while (buff != exitStr) {
+		std::cout << ">>";
+		std::getline(std::cin, buff);
 
-	if (subjectFound(buff) and buff != exitStr) {
-		removeMainElm(buff);
-		system("cls");
-	}
-	else {
-		system("cls");
-		std::cout << "Дисциплина не найдена" << std::endl;
+		if (subjectFound(buff) and buff != exitStr) {
+			removeMainElm(buff);
+			system("cls");
+			buff = exitStr;
+		}
+		else if (buff == exitStr)
+			system("cls");
+		else
+			std::cout << "Дисциплина не найдена" << std::endl;
 	}
 }
 
@@ -476,28 +485,38 @@ void edit_removeSession() {
 	std::cout << ("Введите название дисциплины, из которой хотите удалить метод оценивания, для выхода введите " + exitStr) << std::endl;
 	std::string buffMainElm("");
 
-	std::cout << ">>";
-	std::getline(std::cin, buffMainElm);
-
-	if (subjectFound(buffMainElm) and buffMainElm != exitStr) {
-		std::cout << ("Введите метод оценивания, который хотите удалить у дисциплины " + buffMainElm) << std::endl;
-		std::string buffAddElm("");
-
+	while (buffMainElm != exitStr) {
 		std::cout << ">>";
-		std::getline(std::cin, buffAddElm);
+		std::getline(std::cin, buffMainElm);
 
-		if (sessionFound(buffAddElm, buffMainElm)) {
-			removeAddElm(buffAddElm, buffMainElm);
+		if (subjectFound(buffMainElm) and buffMainElm != exitStr) {
+			std::vector<std::string> action = sessionKind;
+			action.push_back("Выйти из выбора");
+
+			bool exit(false);
+			while (exit != true) {
+				system("cls");
+				printStructure();
+				std::cout << std::endl;
+				std::cout << ("Выберите метод оценивания, который хотите удалить у дисциплины " + buffMainElm) << std::endl;
+				ask(action);
+
+				int ans = inputChoice(action.size());
+
+				if (ans < 5) {
+					removeAddElm(action[ans - 1], buffMainElm);
+				}
+				else if (ans == 5) {
+					buffMainElm = exitStr;
+					exit = true;
+				}
+			}
 			system("cls");
 		}
-		else {
+		else if (buffMainElm == exitStr)
 			system("cls");
-			std::cout << "Метод оценивания не найден" << std::endl;
-		}
-	}
-	else {
-		system("cls");
-		std::cout << "Дисциплина не найдена" << std::endl;
+		else
+			std::cout << "Дисциплина не найдена" << std::endl;
 	}
 }
 
