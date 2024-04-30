@@ -35,17 +35,17 @@ extern MainElm* mainPtr;
 void printStructure();
 
 // добавление дисциплин в структуру
-void appendMainElm(std::string appSubject);
+MainElm* appendMainElm(std::string appSubject);
 // удаление дисциплины из структуры
 void removeMainElm(std::string remSubject);
 
 // добавление метода оценивания в структуру
-void appendAddElm(std::string session, std::string subjectName);
+void appendAddElm(std::string appSession, std::string subjectName);
 // удаление метода оценивания из структуры
-void removeAddElm(std::string remSession, std::string subjectName);
+void removeAddElm(std::string remSession, MainElm* subjectPtr);
 
 // запись методов оценивания для предмета
-bool insertAddElm(std::string subjectName);
+bool insertAddElm(MainElm* subjectPtr);
 
 // основное меню программы
 void menu();
@@ -60,8 +60,8 @@ bool edit_appendSession();
 bool edit_removeSubject();
 bool edit_removeSession();
 
-bool subjectFound(std::string name);
-bool sessionFound(std::string sessionName, std::string subjectName);
+//bool subjectFound(std::string name);
+MainElm* subjectFound(std::string name);
 
 // сохранение структуры в файл
 bool createFile();

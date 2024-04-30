@@ -16,7 +16,7 @@ bool receiveISS(const std::string& filename) {
 	return (filename.rfind(".iss") != std::string::npos);
 }
 
-void appendMainElm(std::string appSubject) {
+MainElm* appendMainElm(std::string appSubject) {
 	MainElm* appPtr = new MainElm;
 	appPtr->subject = appSubject;
 	appPtr->ptr1 = nullptr;
@@ -36,6 +36,7 @@ void appendMainElm(std::string appSubject) {
 		}
 		curPtr->ptr1 = appPtr;
 	}
+	return appPtr;
 }
 
 void removeMainElm(std::string remSubject) {
@@ -79,13 +80,8 @@ void removeMainElm(std::string remSubject) {
 	delete remPtr;
 }
 
-void appendAddElm(std::string appSession, std::string subjectName) {
-	MainElm* curMainElmPtr = mainPtr;
-	// перебор по дисциплинам, поиск требуемой
-	while (curMainElmPtr != nullptr and curMainElmPtr->subject != subjectName)
-		curMainElmPtr = curMainElmPtr->ptr1;
-
-	if (curMainElmPtr != nullptr) {
+void appendAddElm(std::string appSession, MainElm* subjectPtr) {
+	if (subjectPtr != nullptr) {
 
 		// создание элемента метода оценивания
 		AddElm* tmp = new AddElm;
@@ -93,10 +89,10 @@ void appendAddElm(std::string appSession, std::string subjectName) {
 		tmp->session = appSession;
 
 		// проверка на наличие хоть каких-то методов оценивания в программе
-		if (curMainElmPtr->ptr2 == nullptr) // случай отсутствия методов оценивания
-			curMainElmPtr->ptr2 = tmp;
+		if (subjectPtr->ptr2 == nullptr) // случай отсутствия методов оценивания
+			subjectPtr->ptr2 = tmp;
 		else {                              // случай наличия методов оценивания
-			AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+			AddElm* curAddElmPtr = subjectPtr->ptr2;
 			// перебор методов оценивания
 			while (curAddElmPtr->ptr != nullptr)
 				curAddElmPtr = curAddElmPtr->ptr;
@@ -106,26 +102,18 @@ void appendAddElm(std::string appSession, std::string subjectName) {
 	else {} // TODO придумать какое-нибудь предупреждение или ошибку, когда дисциплина не была найдена
 }
 
-void removeAddElm(std::string remSession, std::string subjectName) {
-	MainElm* curMainElmPtr = mainPtr;
-	// поиск требуемой дисциплины
-	while (curMainElmPtr->subject != subjectName and curMainElmPtr->ptr1 != nullptr)
-		curMainElmPtr = curMainElmPtr->ptr1;
-	// если не была найдена требуемая дисциплина
-	if (curMainElmPtr->subject != subjectName)
-		return;
-
+void removeAddElm(std::string remSession, MainElm* subjectPtr) {
 	// проверка на отсутсвие методов оценивания
-	if (curMainElmPtr->ptr2 == nullptr)
+	if (subjectPtr->ptr2 == nullptr)
 		return;
 
-	AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+	AddElm* curAddElmPtr = subjectPtr->ptr2;
 	// случай, когда метод оценивания у дисциплины единственный
 	if (curAddElmPtr->ptr == nullptr) {
 		// метод оценивания совпадает
 		if (curAddElmPtr->session == remSession) {
 			delete curAddElmPtr;
-			curMainElmPtr->ptr2 = nullptr;
+			subjectPtr->ptr2 = nullptr;
 		}
 		return;
 	}
@@ -142,7 +130,7 @@ void removeAddElm(std::string remSession, std::string subjectName) {
 
 		// случай, когда был выбран первый метод оценивания и в списке он не один
 		if (precAddElmPtr == nullptr)
-			curMainElmPtr->ptr2 = curAddElmPtr->ptr;  // привязка к дисциплины и метода оценивания между удаляемым методом оценивания
+			subjectPtr->ptr2 = curAddElmPtr->ptr;  // привязка к дисциплины и метода оценивания между удаляемым методом оценивания
 		else
 			precAddElmPtr->ptr = curAddElmPtr->ptr;  // привязка к элементов между удаляемыми
 		delete remPtr;                               // удаление требуемого элемента
@@ -279,15 +267,15 @@ bool continueWriting() {
 		system("cls");
 		if (buffMain != exitStr) {
 			wasChanged = true;
-			appendMainElm(buffMain);
-			insertAddElm(buffMain);
+			MainElm* curMainElm = appendMainElm(buffMain);
+			insertAddElm(curMainElm);
 		}
 	}
 	return wasChanged;
 }
 
 //@return возвращает true, если структура была изменена, иначе false
-bool insertAddElm(std::string subjectName) {
+bool insertAddElm(MainElm* subjectPtr) {
 	bool res(false);
 
 	std::vector<std::string> action = sessionKind;
@@ -297,7 +285,7 @@ bool insertAddElm(std::string subjectName) {
 
 	bool exit(false);
 	while (exit != true) {
-		std::cout << ("Выберите методы оценивания для дисциплины " + subjectName) << std::endl;
+		std::cout << ("Выберите методы оценивания для дисциплины " + subjectPtr->subject) << std::endl;
 		ask(action);
 		std::cout << "Список введенных методов оценивания:" << std::endl;
 		for (auto out : curList)
@@ -307,7 +295,7 @@ bool insertAddElm(std::string subjectName) {
 
 		if (ans < 5) {
 			res = true;
-			appendAddElm(action[ans - 1], subjectName);
+			appendAddElm(action[ans - 1], subjectPtr);
 			curList.push_back(action[ans - 1]);
 		}
 		else if (ans == 5) {
@@ -393,9 +381,9 @@ void loadFile(std::string filename) {
 		std::stringstream ss(line);
 		std::getline(ss, subject, '\t');
 
-		appendMainElm(subject);
+		MainElm* curMainElmPtr = appendMainElm(subject);
 		while (getline(ss, session, '\t'))
-			appendAddElm(session, subject);
+			appendAddElm(session, curMainElmPtr);
 	}
 
 	instream.close();
@@ -465,9 +453,10 @@ bool edit_appendSession() {
 		std::cout << ">>";
 		std::getline(std::cin, buff);
 
-		if (subjectFound(buff) and buff != exitStr) {
+		MainElm* curMainElmPtr = subjectFound(buff);
+		if (curMainElmPtr != nullptr and buff != exitStr) {
 			system("cls");
-			res += insertAddElm(buff);
+			res += insertAddElm(curMainElmPtr);
 			buff = exitStr;
 		}
 		else if (buff == exitStr)
@@ -514,7 +503,8 @@ bool edit_removeSession() {
 		std::cout << ">>";
 		std::getline(std::cin, buffMainElm);
 
-		if (subjectFound(buffMainElm) and buffMainElm != exitStr) {
+		MainElm* curMainElmPtr = subjectFound(buffMainElm);
+		if (curMainElmPtr != nullptr and buffMainElm != exitStr) {
 			std::vector<std::string> action = sessionKind;
 			action.push_back("Выйти из выбора");
 
@@ -530,7 +520,7 @@ bool edit_removeSession() {
 
 				if (ans < 5) {
 					res = true;
-					removeAddElm(action[ans - 1], buffMainElm);
+					removeAddElm(action[ans - 1], curMainElmPtr);
 				}
 				else if (ans == 5) {
 					buffMainElm = exitStr;
@@ -547,37 +537,12 @@ bool edit_removeSession() {
 	return res;
 }
 
-bool subjectFound(std::string name) {
+MainElm* subjectFound(std::string name) {
 	MainElm* curMainElmPtr = mainPtr;
 	while (curMainElmPtr->subject != name and curMainElmPtr->ptr1 != nullptr)
 		curMainElmPtr = curMainElmPtr->ptr1;
 	if (curMainElmPtr->subject == name)
-		return true;
+		return curMainElmPtr;
 	else
-		return false;
-}
-
-bool sessionFound(std::string sessionName, std::string subjectName) {
-	// поиск дисциплины
-	MainElm* curMainElmPtr = mainPtr;
-	while (curMainElmPtr->subject != subjectName and curMainElmPtr->ptr1 != nullptr)
-		curMainElmPtr = curMainElmPtr->ptr1;
-
-	// выход в случае, если дисциплина была не найдена
-	if (curMainElmPtr->subject != subjectName)
-		return false;
-
-	// поиск метода оценивания
-	AddElm* curAddElmPtr = curMainElmPtr->ptr2;
-
-	// случай, когда дисциплина не имеет методов оценивания
-	if (curAddElmPtr == nullptr)
-		return false;
-
-	while (curAddElmPtr->session != sessionName and curAddElmPtr->ptr != nullptr)
-		curAddElmPtr = curAddElmPtr->ptr;
-	if (curAddElmPtr->session == sessionName)
-		return true;
-	else
-		return false;
+		return nullptr;
 }
