@@ -3,7 +3,14 @@
 
 MainElm* mainPtr = nullptr;
 
-std::string exitStr = "0";
+const std::vector<std::string> sessionKind{
+	"ЗАЧЕТ",
+	"ЭКЗАМЕН",
+	"КР",
+	"КП",
+};
+
+const std::string exitStr = "0";
 
 bool receiveISS(const std::string& filename) {
 	return (filename.rfind(".iss") != std::string::npos);
@@ -174,6 +181,7 @@ void printStructure() {
 }
 
 void menu() {
+	// вывод вступления
 	std::cout << "Добро пожаловать в программу StructureWork." << std::endl
 		<< "Программа работает с учебными дисциплинами и их методами оценивания." << std::endl << std::endl
 		<< "Для работы с файлами они должны находится в той же директории, что и программа." << std::endl << std::endl;
@@ -220,7 +228,7 @@ void menu() {
 		}
 		case 3: // редактирование структуры
 		{
-			//editStructure();
+			editStructure();
 			isSaved = false;
 			break;
 		}
@@ -277,13 +285,8 @@ bool continueWriting() {
 }
 
 void insertAddElm(std::string subjectName) {
-	std::vector<std::string> action{
-	"ЗАЧЕТ",
-	"ЭКЗАМЕН",
-	"КР",
-	"КП",
-	"Выйти к дисциплинам"
-	};
+	std::vector<std::string> action = sessionKind;
+	action.push_back("Выйти из выбора");
 
 	std::vector<std::string> curList;
 
@@ -293,7 +296,7 @@ void insertAddElm(std::string subjectName) {
 		ask(action);
 		std::cout << "Список введенных методов оценивания:" << std::endl;
 		for (auto out : curList)
-			std::cout << '\t' << out << std::endl;
+			std::cout << "  " << out << std::endl;
 
 		int ans = inputChoice(action.size());
 
@@ -389,4 +392,146 @@ void loadFile(std::string filename) {
 	}
 
 	instream.close();
+}
+
+void editStructure() {
+	std::vector<std::string> action{
+		"Добавить метод оценивания",
+		"Удалить дисциплину",
+		"Удалить метод оценивания",
+		"Выйти в главное меню"
+	};
+
+	bool quit(false);
+
+	while (!quit) {
+		printStructure();
+		std::cout << std::endl;
+		std::cout << "Выберите действие:" << std::endl;
+		ask(action);
+		int ans = inputChoice(action.size());
+
+		printStructure();
+		std::cout << std::endl;
+		switch (ans) {
+		case 1: // добавление метода оценивания
+		{
+			edit_appendSession();
+			break;
+		}
+		case 2: // удаление дисциплины
+		{
+			edit_removeSubject();
+			break;
+		}
+		case 3: // удаление метода оценивания
+		{
+			edit_removeSession();
+			break;
+		}
+		case 4: // выход в меню
+		{
+			quit = true;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+}
+
+void edit_appendSession() {
+	std::cout << ("Введите название дисциплины, к которой хотите добавить методы оценивания, для выхода введите " + exitStr) << std::endl;
+	std::string buff("");
+
+	std::cout << ">>";
+	std::getline(std::cin, buff);
+	system("cls");
+
+	if (subjectFound(buff) and buff != exitStr) {
+		insertAddElm(buff);
+	}
+	else
+		std::cout << "Дисциплина не найдена" << std::endl;
+}
+
+void edit_removeSubject() {
+	std::cout << ("Введите название дисциплины, которую хотите удалить, для выхода введите " + exitStr) << std::endl;
+	std::string buff("");
+
+	std::cout << ">>";
+	std::getline(std::cin, buff);
+
+	if (subjectFound(buff) and buff != exitStr) {
+		removeMainElm(buff);
+		system("cls");
+	}
+	else {
+		system("cls");
+		std::cout << "Дисциплина не найдена" << std::endl;
+	}
+}
+
+void edit_removeSession() {
+	std::cout << ("Введите название дисциплины, из которой хотите удалить метод оценивания, для выхода введите " + exitStr) << std::endl;
+	std::string buffMainElm("");
+
+	std::cout << ">>";
+	std::getline(std::cin, buffMainElm);
+
+	if (subjectFound(buffMainElm) and buffMainElm != exitStr) {
+		std::cout << ("Введите метод оценивания, который хотите удалить у дисциплины " + buffMainElm) << std::endl;
+		std::string buffAddElm("");
+
+		std::cout << ">>";
+		std::getline(std::cin, buffAddElm);
+
+		if (sessionFound(buffAddElm, buffMainElm)) {
+			removeAddElm(buffAddElm, buffMainElm);
+			system("cls");
+		}
+		else {
+			system("cls");
+			std::cout << "Метод оценивания не найден" << std::endl;
+		}
+	}
+	else {
+		system("cls");
+		std::cout << "Дисциплина не найдена" << std::endl;
+	}
+}
+
+bool subjectFound(std::string name) {
+	MainElm* curMainElmPtr = mainPtr;
+	while (curMainElmPtr->subject != name and curMainElmPtr->ptr1 != nullptr)
+		curMainElmPtr = curMainElmPtr->ptr1;
+	if (curMainElmPtr->subject == name)
+		return true;
+	else
+		return false;
+}
+
+bool sessionFound(std::string sessionName, std::string subjectName) {
+	// поиск дисциплины
+	MainElm* curMainElmPtr = mainPtr;
+	while (curMainElmPtr->subject != subjectName and curMainElmPtr->ptr1 != nullptr)
+		curMainElmPtr = curMainElmPtr->ptr1;
+
+	// выход в случае, если дисциплина была не найдена
+	if (curMainElmPtr->subject != subjectName)
+		return false;
+
+	// поиск метода оценивания
+	AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+
+	// случай, когда дисциплина не имеет методов оценивания
+	if (curAddElmPtr == nullptr)
+		return false;
+
+	while (curAddElmPtr->session != sessionName and curAddElmPtr->ptr != nullptr)
+		curAddElmPtr = curAddElmPtr->ptr;
+	if (curAddElmPtr->session == sessionName)
+		return true;
+	else
+		return false;
 }

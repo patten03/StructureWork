@@ -9,8 +9,11 @@
 // типы методов оценивания
 enum sessionType { test = 1, exam, courseWork, courseProject };
 
+// массив методов оценивания
+const extern std::vector<std::string> sessionKind;
+
 // символ выхода
-extern std::string exitStr;
+const extern std::string exitStr;
 
 // структура методов оценивания
 struct AddElm {
@@ -52,6 +55,13 @@ bool continueWriting();
 
 // меню редактирования структуры
 void editStructure();
+
+void edit_appendSession();
+void edit_removeSubject();
+void edit_removeSession();
+
+bool subjectFound(std::string name);
+bool sessionFound(std::string sessionName, std::string subjectName);
 
 // сохранение структуры в файл
 bool createFile();
