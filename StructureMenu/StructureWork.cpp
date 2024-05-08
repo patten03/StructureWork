@@ -16,8 +16,16 @@ const std::vector<std::string> sessionKind{
 const std::string exitStr = "0";
 
 //@brief фильтр для выбора файлов формата .iss
+//@return возвращает true если формат .iss, иначе false
+//@param filename - название файла, по которому происходит фильтрация
 bool receiveISS(const std::string& filename) {
-	return (filename.rfind(".iss") != std::string::npos);
+	int dotPos = filename.rfind(".iss");
+	if (dotPos != std::string::npos) {
+		std::string extension = filename.substr(dotPos, filename.size() - 1);
+		return (extension == ".iss");
+	}
+	else
+		return false; // если в названии файла с расширением точки нет
 }
 
 //@brief добавление дисциплины в структуру
@@ -210,6 +218,7 @@ void menu() {
 			"Сохранить структуру в файл",
 			"Загрузить структуру из файла",
 			"Вывести структуру в консоль",
+			"Сортировать структуру",
 			"Выйти из программы"
 		};
 		ask(menuPanel); // вывод действий в консоль для их выбора пользователем
@@ -259,7 +268,12 @@ void menu() {
 			std::cout << std::endl;
 			break;
 		}
-		case 7: // выход из программы
+		case 7: // сортировка структуры
+		{
+			isSaved = !menuSorting();
+			break;
+		}
+		case 8: // выход из программы
 		{
 			quit = true;
 			deleteStructure();
@@ -347,6 +361,54 @@ void deleteStructure() {
 		curMainElmPtr = curMainElmPtr->ptr1;
 		removeMainElm(precMainElmPtr->subject); // удаление предыдущего элемента
 	}
+}
+
+//@brief сортировка структуры
+//@param compare - функция сравнение дисцилпин
+void sortStructure(bool compare(const MainElm*, const MainElm*)) {
+	std::vector<MainElm*> vecPtr;
+
+	MainElm* curMainElmPtr(mainPtr);
+	// получение указателей на все дисциплины
+	while (curMainElmPtr != nullptr) {
+		vecPtr.push_back(curMainElmPtr);
+		curMainElmPtr = curMainElmPtr->ptr1;
+	}
+
+	// сортировка указателей
+	std::sort(vecPtr.begin(), vecPtr.end(), compare);
+
+	// подстановка упорядоченных указателей
+	mainPtr = vecPtr.at(0);
+	for (int i = 0; i < (vecPtr.size() - 1); i++) {
+		vecPtr.at(i)->ptr1 = vecPtr.at(i + 1);
+	}
+	vecPtr.at(vecPtr.size() - 1)->ptr1 = nullptr;
+}
+
+//@brief функция сравнения для названий дисциплин
+//@return соотвествует знаку >
+//@param a и b - указатели на элементы
+bool greater(const MainElm* a, const MainElm* b) {
+	bool res;
+	res = std::lexicographical_compare(
+		a->subject.begin(), a->subject.end(),
+		b->subject.begin(), b->subject.end());
+	return res;
+}
+
+//@brief функция сравнения для названий дисциплин
+//@return соотвествует знаку <
+//@param a и b - указатели на элементы
+bool lesser(const MainElm* a, const MainElm* b) {
+	bool res;
+	if (a->subject == b->subject)
+		res = false;
+	else
+		res = not(std::lexicographical_compare(
+			a->subject.begin(), a->subject.end(),
+			b->subject.begin(), b->subject.end()));
+	return res;
 }
 
 //@brief сохранение структуры в файл
@@ -476,6 +538,49 @@ bool editStructure() {
 		}
 	}
 	return res;
+}
+
+//@brief меню сортировки структуры по дисциплинам
+//@return возвращает true, если структура была изменена, иначе false
+bool menuSorting() {
+
+	// выход из-за отсутствия элементов в структуре
+	if (mainPtr == nullptr) {
+		std::cout << "Невозможно сортировать пустую структуру" << std::endl;
+		return false;
+	}
+
+	bool isChanged;
+	std::vector<std::string> action{
+		"Сортировать по возрастанию",
+		"Сортировать по убыванию",
+		"Выйти в меню"
+	};
+	ask(action);
+	int choice = inputChoice(action.size());
+
+	switch (choice) {
+	case 1: // сортировка по возрастанию
+	{
+		sortStructure(greater);
+		isChanged = true;
+		break;
+	}
+	case 2: // сортировка по убыванию
+	{
+		sortStructure(lesser);
+		isChanged = true;
+		break;
+	}
+	case 3: // выход из меню
+	{
+		isChanged = false;
+		break;
+	}
+	default:
+		break;
+	}
+	return isChanged;
 }
 
 //@brief меню добавления метода оценивания в дисциплину

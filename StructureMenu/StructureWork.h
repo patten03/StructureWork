@@ -27,11 +27,14 @@ const extern std::string exitStr;                  // символ выхода из меню ввод
 
 // функции для прямой работы со структурой
 
-void deleteStructure();                         // полное удаление структуры
-MainElm* subjectFound(std::string name);        // получения указателя на дисциплину по ее названию
-void printStructure();                          // вывод структуры в консоль
-MainElm* appendMainElm(std::string appSubject); // добавление дисциплины в структуру
-void removeMainElm(std::string remSubject);     // удаление дисциплины из структуры
+void deleteStructure();                           // полное удаление структуры
+MainElm* subjectFound(std::string name);          // получения указателя на дисциплину по ее названию
+void printStructure();                            // вывод структуры в консоль
+MainElm* appendMainElm(std::string appSubject);   // добавление дисциплины в структуру
+void removeMainElm(std::string remSubject);       // удаление дисциплины из структуры
+bool greater(const MainElm* a, const MainElm* b); // функция сравнения для названий дисциплин, соотвествует знаку > 
+bool lesser(const MainElm* a, const MainElm* b);  // функция сравнения для названий дисциплин, соотвествует знаку <
+void sortStructure(bool compare(const MainElm*, const MainElm*));   // сортировка структуры
 void appendAddElm(std::string appSession, std::string subjectName); // добавление метода оценивания в структуру
 void removeAddElm(std::string remSession, MainElm* subjectPtr);     // удаление метода оценивания из структуры
 
@@ -43,6 +46,7 @@ bool insertAddElm(MainElm* subjectPtr); // запись нескольких методов оценивания 
 bool createFile();                      // сохранение структуры в файл
 void loadFile(std::string filename);    // загрузка структуры из файла
 bool editStructure();                   // меню редактирования структуры
+bool menuSorting();                     // меню сортировки структуры по дисциплинам
 
 // меню редактирования структуры
 
