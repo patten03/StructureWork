@@ -4,7 +4,7 @@
 //@brief начальный указатель на всю структуру
 MainElm* mainPtr = nullptr;
 
-//@brief массив методов оценивания
+//@brief вектор методов оценивания
 const std::vector<std::string> sessionKind{
 	"ЗАЧЕТ",
 	"ЭКЗАМЕН",
@@ -219,6 +219,7 @@ void menu() {
 			"Загрузить структуру из файла",
 			"Вывести структуру в консоль",
 			"Сортировать структуру",
+			"Вывести дисциплины по методам оценивания",
 			"Выйти из программы"
 		};
 		ask(menuPanel); // вывод действий в консоль для их выбора пользователем
@@ -273,7 +274,12 @@ void menu() {
 			isSaved = !menuSorting();
 			break;
 		}
-		case 8: // выход из программы
+		case 8: // вывод дисциплин с определенным методом оценивания
+		{
+			specialOutput();
+			break;
+		}
+		case 9: // выход из программы
 		{
 			quit = true;
 			deleteStructure();
@@ -409,6 +415,25 @@ bool lesser(const MainElm* a, const MainElm* b) {
 			a->subject.begin(), a->subject.end(),
 			b->subject.begin(), b->subject.end()));
 	return res;
+}
+
+//@brief нахождение метода оценивания в структуре по его названию
+//@return возвращает указатель на метод оценивания, если не найден, то nullptr
+//@param subject - указатель на дисциплину, в которой ищется метод оценивания
+//@param session - название метод оценивания, который требуется найти
+AddElm* sessionFound(MainElm* subject, std::string session) {
+	// случай, когда дисциплина не содержит методы оценивания
+	if (subject->ptr2 == nullptr)
+		return nullptr;
+
+	// общий случай
+	AddElm* curAddElmPtr = subject->ptr2;
+	while (curAddElmPtr->session != session and curAddElmPtr->ptr != nullptr)
+		curAddElmPtr = curAddElmPtr->ptr;
+	if (curAddElmPtr->session == session)
+		return curAddElmPtr;
+	else
+		return nullptr;
 }
 
 //@brief сохранение структуры в файл
@@ -581,6 +606,55 @@ bool menuSorting() {
 		break;
 	}
 	return isChanged;
+}
+
+//@brief вывод дисциплин, которые содержат определенные методы оценивания
+void specialOutput() {
+	const int widthHead(20);
+	const int widthCell(10);
+
+	std::vector<std::string> action = sessionKind;
+	std::cout << "Выберите метод оценивания, который должен содержаться выводимых дисциплинах:" << std::endl;
+	ask(action);
+	int choice = inputChoice(action.size());
+
+	if (mainPtr != nullptr)
+		std::cout << "Дисциплины, содержащие в себе метод оценивания " + action.at(choice - 1) << ":" << std::endl;
+
+	bool isEmpty(true); // переменная, которая показывает наличие найденных дисциплин
+
+	MainElm* curMainElmPtr = mainPtr;
+	while (curMainElmPtr != nullptr) {
+		// условие, по которому выводится только дисциплина с выбранным методом оценивания
+		if (sessionFound(curMainElmPtr, action.at(choice - 1)) != nullptr) {
+			std::cout << std::left << std::setw(widthHead) << curMainElmPtr->subject;
+
+			AddElm* curAddElmPtr = curMainElmPtr->ptr2;
+			// перебор методов оценивания для вывода
+			while (curAddElmPtr != nullptr) {
+				std::cout << std::left << std::setw(widthCell) << curAddElmPtr->session;
+				curAddElmPtr = curAddElmPtr->ptr;
+			}
+			std::cout << std::endl;
+
+			isEmpty = false;
+		}
+		curMainElmPtr = curMainElmPtr->ptr1;
+	}
+
+	// случай, когда структура пустая
+	if (mainPtr == nullptr) {
+		std::cout << "Структура пуста" << std::endl;
+		return;
+	}
+
+	// случай, когда не было найдено дисциплин с требуемым методом оценивания
+	if (isEmpty) {
+		std::cout << "Дисциплины не найдены" << std::endl << std::endl;
+		return;
+	}
+
+	std::cout << std::endl;
 }
 
 //@brief меню добавления метода оценивания в дисциплину

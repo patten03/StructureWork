@@ -22,7 +22,7 @@ struct MainElm {
 // глобальные переменные
 
 extern MainElm* mainPtr;                           // начальный указатель на всю структуру
-const extern std::vector<std::string> sessionKind; // массив методов оценивания
+const extern std::vector<std::string> sessionKind; // вектор методов оценивания
 const extern std::string exitStr;                  // символ выхода из меню ввода
 
 // функции для прямой работы со структурой
@@ -35,7 +35,8 @@ void removeMainElm(std::string remSubject);       // удаление дисциплины из стру
 bool greater(const MainElm* a, const MainElm* b); // функция сравнения для названий дисциплин, соотвествует знаку > 
 bool lesser(const MainElm* a, const MainElm* b);  // функция сравнения для названий дисциплин, соотвествует знаку <
 void sortStructure(bool compare(const MainElm*, const MainElm*));   // сортировка структуры
-void appendAddElm(std::string appSession, std::string subjectName); // добавление метода оценивания в структуру
+AddElm* sessionFound(MainElm* subject, std::string session);        // получения указателя на метод по его названию
+void appendAddElm(std::string appSession, MainElm* subjectPtr);     // добавление метода оценивания в структуру
 void removeAddElm(std::string remSession, MainElm* subjectPtr);     // удаление метода оценивания из структуры
 
 // функии для работы с пользователем, меню
@@ -47,6 +48,7 @@ bool createFile();                      // сохранение структуры в файл
 void loadFile(std::string filename);    // загрузка структуры из файла
 bool editStructure();                   // меню редактирования структуры
 bool menuSorting();                     // меню сортировки структуры по дисциплинам
+void specialOutput();                   // вывод дисциплин, которые содержат определенные методы оценивания
 
 // меню редактирования структуры
 
