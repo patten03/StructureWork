@@ -197,9 +197,9 @@ void menu() {
 		<< "Программа работает с учебными дисциплинами и их методами оценивания." << std::endl << std::endl
 		<< "Для работы с файлами они должны находится в той же директории, что и программа." << std::endl << std::endl;
 
-
-	bool isSaved(false); // переменная указывает на то, была ли сохранена структура в файл
-	bool quit(false);    // переменная выхода из программы
+	std::string curFile(""); // название файла, с которым происходит работа
+	bool isSaved(false);     // переменная указывает на то, была ли сохранена структура в файл
+	bool quit(false);        // переменная выхода из программы
 	while (!quit) {
 
 		// вывод того, была ли сохранена структура
@@ -233,6 +233,7 @@ void menu() {
 			deleteStructure();
 			continueWriting();
 			isSaved = false;
+			curFile = "";
 			break;
 		}
 		case 2: // дозапись структуры
@@ -250,7 +251,7 @@ void menu() {
 		}
 		case 4: // сохранение структуры в файл
 		{
-			isSaved += createFile();
+			isSaved += createFile(curFile);
 			break;
 		}
 		case 5: // загрузка структуры из файла
@@ -260,6 +261,7 @@ void menu() {
 				deleteStructure();
 				loadFile(file);
 				isSaved = true;
+				curFile = file.substr(file.rfind("\\") + 1, file.size());
 			}
 			break;
 		}
@@ -438,7 +440,8 @@ AddElm* sessionFound(MainElm* subject, std::string session) {
 
 //@brief сохранение структуры в файл
 //@return возвращает true, если файл был создан, иначе false
-bool createFile() {
+//@param curFilename - название файла, который был загружен пользователем
+bool createFile(std::string& curFilename) {
 	MainElm* curMainElmPtr;
 	curMainElmPtr = mainPtr;
 
@@ -448,13 +451,52 @@ bool createFile() {
 		return false; // файл не был сохранен, по ошибке
 	}
 
-	std::string filename = askName("Введите название файла, для выхода введите " + exitStr);
-	// проверка на символ выхода и то, является ли структура пустой
-	if (filename != exitStr) {
-		filename = filename + "_" + currentTime() + ".iss";
+	std::string tempFilename;
+
+	// проверка на то, работаем ли мы в выбранном файле или это новый созданный
+	if (curFilename != "") {
+		std::cout << "Хотите сохранить изменения в выбранный файл или создать новый?" << std::endl;
+		std::vector<std::string> action{
+			("Сохранить изменения в выбранный файл " + curFilename),
+			"Создать новый файл",
+			"Выйти в меню"
+		};
+
+		ask(action);
+		int choice = inputChoice(action.size());
+
+		switch (choice) {
+		case 1: // сохранение изменений выбранный файл
+		{
+			tempFilename = curFilename;
+			break;
+		}
+		case 2: // создание нового файла
+		{
+			tempFilename = askName("Введите название файла, для выхода введите " + exitStr);
+			break;
+		}
+		case 3: // выход в меню
+		{
+			tempFilename = exitStr;
+		}
+		default: break;
+		}
+	}
+	else {
+		tempFilename = askName("Введите название файла, для выхода введите " + exitStr);
+	}
+
+	// проверка на символ выхода
+	if (tempFilename != exitStr) {
+		// добавление текущего времени и расширения к файлу, в случае когда было выбрано создать новый файл
+		if (curFilename != tempFilename)
+			tempFilename = tempFilename + "_" + currentTime() + ".iss";
+
+		curFilename = tempFilename; // синхронизация выбранного файла для внешнего меню
 
 		std::fstream outstream;
-		outstream.open(filename, std::ios_base::out);
+		outstream.open(tempFilename, std::ios_base::out);
 
 		// перебор дисциплин для ввода
 		while (curMainElmPtr != nullptr) {
@@ -474,7 +516,7 @@ bool createFile() {
 			curMainElmPtr = curMainElmPtr->ptr1;
 		}
 
-		std::cout << "Структура сохранена в файл под названием " << filename << std::endl;
+		std::cout << "Структура сохранена в файл под названием " << tempFilename << std::endl;
 
 		outstream.close();
 		return true; // файл был сохранен

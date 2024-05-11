@@ -41,14 +41,14 @@ void removeAddElm(std::string remSession, MainElm* subjectPtr);     // удаление 
 
 // функии для работы с пользователем, меню
 
-void menu();                            // основное меню программы
-bool continueWriting();                 // меню записи или дозаписи структуры
-bool insertAddElm(MainElm* subjectPtr); // запись нескольких методов оценивания для предмета
-bool createFile();                      // сохранение структуры в файл
-void loadFile(std::string filename);    // загрузка структуры из файла
-bool editStructure();                   // меню редактирования структуры
-bool menuSorting();                     // меню сортировки структуры по дисциплинам
-void specialOutput();                   // вывод дисциплин, которые содержат определенные методы оценивания
+void menu();                               // основное меню программы
+bool continueWriting();                    // меню записи или дозаписи структуры
+bool insertAddElm(MainElm* subjectPtr);    // запись нескольких методов оценивания для предмета
+bool createFile(std::string& curFilename); // сохранение структуры в файл
+void loadFile(std::string filename);       // загрузка структуры из файла
+bool editStructure();                      // меню редактирования структуры
+bool menuSorting();                        // меню сортировки структуры по дисциплинам
+void specialOutput();                      // вывод дисциплин, которые содержат определенные методы оценивания
 
 // меню редактирования структуры
 
